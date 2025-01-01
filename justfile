@@ -11,11 +11,11 @@ setup:
 
 # Check TOML formatting without modifying file
 check:
-    dagger call check --source=. --filename=Cargo.toml --fix-inplace=false export --path=.
+    dagger call run-toml-formatter --source=. --args="check","Cargo.toml" export --path=.
 
 # Format TOML file in-place
 format:
-    dagger call check --source=. --filename=Cargo.toml --fix-inplace=true export --path=.
+    dagger call run-toml-formatter --source=. --args="check","--fix-inplace","Cargo.toml" export --path=.
     @echo "Formatted file:"
     @cat Cargo.toml
 
