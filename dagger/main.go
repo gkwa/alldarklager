@@ -1,37 +1,38 @@
-// A generated module for Alldarklager functions
-//
-// This module has been generated via dagger init and serves as a reference to
-// basic module structure as you get started with Dagger.
-//
-// Two functions have been pre-created. You can modify, delete, or add to them,
-// as needed. They demonstrate usage of arguments and return types using simple
-// echo and grep commands. The functions can be called from the dagger CLI or
-// from one of the SDKs.
-//
-// The first line in this comment block is a short description line and the
-// rest is a long description with more detail on the module's purpose or usage,
-// if appropriate. All modules should have a short description.
-
 package main
 
 import (
 	"context"
+
 	"dagger/alldarklager/internal/dagger"
 )
 
 type Alldarklager struct{}
 
-// Returns a container that echoes whatever string argument is provided
-func (m *Alldarklager) ContainerEcho(stringArg string) *dagger.Container {
-	return dag.Container().From("alpine:latest").WithExec([]string{"echo", stringArg})
+func (m *Alldarklager) CreateBaseContainer() *dagger.Container {
+	return dag.Container().From("python:3.12")
 }
 
-// Returns lines that match a pattern in the files of the provided Directory
-func (m *Alldarklager) GrepDir(ctx context.Context, directoryArg *dagger.Directory, pattern string) (string, error) {
-	return dag.Container().
-		From("alpine:latest").
-		WithMountedDirectory("/mnt", directoryArg).
-		WithWorkdir("/mnt").
-		WithExec([]string{"grep", "-R", pattern, "."}).
-		Stdout(ctx)
+func (m *Alldarklager) InstallPoetry(base *dagger.Container) *dagger.Container {
+	return base.WithExec([]string{"pip", "install", "poetry"})
+}
+
+func (m *Alldarklager) CloneRepo(container *dagger.Container) *dagger.Container {
+	return container.WithExec([]string{
+		"git",
+		"clone",
+		"https://github.com/paulovcmedeiros/toml-formatter",
+	})
+}
+
+func (m *Alldarklager) InstallDependencies(container *dagger.Container) *dagger.Container {
+	return container.
+		WithWorkdir("toml-formatter").
+		WithExec([]string{"poetry", "install"})
+}
+
+func (m *Alldarklager) ProvisionEnvironment(ctx context.Context) *dagger.Container {
+	base := m.CreateBaseContainer()
+	withPoetry := m.InstallPoetry(base)
+	withRepo := m.CloneRepo(withPoetry)
+	return m.InstallDependencies(withRepo)
 }
