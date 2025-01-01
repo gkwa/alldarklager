@@ -1,0 +1,32 @@
+env HOME=$WORK${/}home
+[windows] env USERPROFILE=$WORK\home
+
+# Set up test TOML file
+cp input.toml Cargo.toml
+
+# Run check with fix-inplace
+exec dagger call check --source=. --filename=Cargo.toml --fix-inplace=true export --path=.
+! cmp Cargo.toml input.toml
+cmp Cargo.toml expected.toml
+
+-- input.toml --
+        [package]
+name = "ssdp"
+version = "0.7.0"
+authors = ["GGist <amiller4421@gmail.com>"]
+    description = "A simple library."
+
+[dependencies]
+log = "0.3"
+net2 = "0.2.23"
+
+-- expected.toml --
+[dependencies]
+ log = "0.3"
+ net2 = "0.2.23"
+
+[package]
+ authors = ["GGist <amiller4421@gmail.com>"]
+ description = "A simple library."
+ name = "ssdp"
+ version = "0.7.0"

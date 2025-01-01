@@ -1,0 +1,20 @@
+env HOME=$WORK${/}home
+[windows] env USERPROFILE=$WORK\home
+
+# Set up test TOML file
+cp input.toml Cargo.toml
+
+# Run check without fixing
+exec dagger call check --source=. --filename=Cargo.toml --fix-inplace=false export --path=.
+cmp Cargo.toml input.toml
+
+-- input.toml --
+        [package]
+name = "ssdp"
+version = "0.7.0"
+authors = ["GGist <amiller4421@gmail.com>"]
+    description = "A simple library."
+
+[dependencies]
+log = "0.3"
+net2 = "0.2.23"

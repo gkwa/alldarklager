@@ -1,0 +1,26 @@
+cp input.toml Cargo.toml
+exec dagger call run-toml-formatter --source=. --args="check","--fix-inplace","Cargo.toml" export --path=.
+! cmp Cargo.toml input.toml
+cmp Cargo.toml expected.toml
+
+-- input.toml --
+        [package]
+name = "ssdp"
+version = "0.7.0"
+authors = ["GGist <amiller4421@gmail.com>"]
+    description = "A simple library."
+
+[dependencies]
+log = "0.3"
+net2 = "0.2.23"
+
+-- expected.toml --
+[dependencies]
+ log = "0.3"
+ net2 = "0.2.23"
+
+[package]
+ authors = ["GGist <amiller4421@gmail.com>"]
+ description = "A simple library."
+ name = "ssdp"
+ version = "0.7.0"
