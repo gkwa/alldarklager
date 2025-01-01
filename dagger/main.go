@@ -9,7 +9,7 @@ import (
 type Alldarklager struct{}
 
 func (m *Alldarklager) CreateBaseContainer() *dagger.Container {
-	return dag.Container().From("python:3.12")
+	return dag.Container().From("python:3.12-slim-bookworm")
 }
 
 func (m *Alldarklager) InstallPoetry(base *dagger.Container) *dagger.Container {
