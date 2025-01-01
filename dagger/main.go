@@ -29,7 +29,7 @@ func (m *Alldarklager) InstallProject(container *dagger.Container) *dagger.Conta
 		})
 }
 
-func (m *Alldarklager) RunTomlFormatter(ctx context.Context, source *dagger.Directory, args []string) (*dagger.Directory, error) {
+func (m *Alldarklager) RunTomlFormatter(ctx context.Context, source *dagger.Directory, args []string) error {
 	container := m.InstallProject(m.InstallPoetry(m.CreateBaseContainer()))
 
 	containerWithSource := container.WithDirectory("/src", source)
@@ -41,7 +41,12 @@ func (m *Alldarklager) RunTomlFormatter(ctx context.Context, source *dagger.Dire
 		WithExec(cmd).
 		Directory("/src")
 
-	return output, nil
+	_, err := output.Export(ctx, ".")
+	return err
+}
+
+func (m *Alldarklager) Check(ctx context.Context, source *dagger.Directory, filename string) error {
+	return m.RunTomlFormatter(ctx, source, []string{"check", "--fix-inplace", filename})
 }
 
 func (m *Alldarklager) Debug(ctx context.Context, source *dagger.Directory) *dagger.Container {
