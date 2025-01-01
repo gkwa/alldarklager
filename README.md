@@ -4,7 +4,8 @@ A Dagger module that provides TOML file formatting capabilities using the [toml-
 
 ## Features
 
-- Format TOML files in-place
+- Check TOML files for formatting issues
+- Optionally format TOML files in-place
 - Run arbitrary toml-formatter commands
 - Debug mode for interactive use
 
@@ -15,13 +16,18 @@ A Dagger module that provides TOML file formatting capabilities using the [toml-
 
 ## Usage
 
-### Format a TOML file
+### Check a TOML file
 
-To format a TOML file in-place:
+To check a TOML file without modifying it:
 
 ```shell
-# Format and overwrite original file
-dagger call check --source=. --filename=your-file.toml export --path=.
+dagger call check --source=. --filename=your-file.toml --fix-inplace=false export --path=.
+```
+
+To check and format a file in-place:
+
+```shell
+dagger call check --source=. --filename=your-file.toml --fix-inplace=true export --path=.
 ```
 
 ### Example
@@ -32,23 +38,27 @@ Here's an example using a sample Cargo.toml file:
 # Download sample TOML file
 curl -O https://raw.githubusercontent.com/GGist/ssdp-rs/3d4dc17d63c0ec42b03b4ce8f07330a3352bc6d6/Cargo.toml
 
-# Check initial format
 cat Cargo.toml
 
-# Format the file
-dagger call check --source=. --filename=Cargo.toml export --path=.
+# Check format only (won't modify the file)
+dagger call check --source=. --filename=Cargo.toml --fix-inplace=false export --path=.
 
-# Check the formatted result
+# Check and format in-place
+dagger call check --source=. --filename=Cargo.toml --fix-inplace=true export --path=.
+
 cat Cargo.toml
 ```
 
 ### Run Custom Commands
 
-You can run any toml-formatter command using the RunTomlFormatter function:
+You can run any toml-formatter command using the RunTomlFormatter function. Note that arguments containing dashes need to be quoted:
 
 ```shell
 # Show help
 dagger call run-toml-formatter --source=. --args="--help" export --path=.
+
+# Run check with custom arguments
+dagger call run-toml-formatter --source=. --args="check","--fix-inplace","Cargo.toml" export --path=.
 ```
 
 ### Debug Mode
@@ -75,5 +85,5 @@ To modify or extend the module, see the functions in `main.go`:
 - InstallPoetry: Installs Poetry package manager
 - InstallProject: Sets up the project and installs toml-formatter
 - RunTomlFormatter: Core function for running formatter commands
-- Check: Convenience function for formatting files in-place
+- Check: Convenience function for checking and optionally formatting files
 - Debug: Interactive debugging support

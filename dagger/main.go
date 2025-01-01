@@ -9,7 +9,7 @@ import (
 type Alldarklager struct{}
 
 func (m *Alldarklager) CreateBaseContainer() *dagger.Container {
-	return dag.Container().From("python:3.12-slim-bookworm")
+	return dag.Container().From("python:3.12")
 }
 
 func (m *Alldarklager) InstallPoetry(base *dagger.Container) *dagger.Container {
@@ -42,8 +42,13 @@ func (m *Alldarklager) RunTomlFormatter(ctx context.Context, source *dagger.Dire
 		Directory("/src"), nil
 }
 
-func (m *Alldarklager) Check(ctx context.Context, source *dagger.Directory, filename string) (*dagger.Directory, error) {
-	return m.RunTomlFormatter(ctx, source, []string{"check", "--fix-inplace", filename})
+func (m *Alldarklager) Check(ctx context.Context, source *dagger.Directory, filename string, fixInPlace bool) (*dagger.Directory, error) {
+	args := []string{"check"}
+	if fixInPlace {
+		args = append(args, "--fix-inplace")
+	}
+	args = append(args, filename)
+	return m.RunTomlFormatter(ctx, source, args)
 }
 
 func (m *Alldarklager) Debug(ctx context.Context, source *dagger.Directory) *dagger.Container {
