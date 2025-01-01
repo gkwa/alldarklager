@@ -29,21 +29,25 @@ func (m *Alldarklager) InstallProject(container *dagger.Container) *dagger.Conta
 		})
 }
 
-func (m *Alldarklager) FormatToml(ctx context.Context, source *dagger.Directory, filename string) (*dagger.Directory, error) {
+func (m *Alldarklager) RunTomlFormatter(ctx context.Context, source *dagger.Directory, args []string) (*dagger.Directory, error) {
 	container := m.InstallProject(m.InstallPoetry(m.CreateBaseContainer()))
 
 	containerWithSource := container.WithDirectory("/src", source)
 
+	cmd := append([]string{"toml-formatter"}, args...)
+
 	output := containerWithSource.
 		WithWorkdir("/src").
-		WithExec([]string{"toml-formatter", "check", "--fix-inplace", filename}).
+		WithExec(cmd).
 		Directory("/src")
 
 	return output, nil
 }
 
-func (m *Alldarklager) ProvisionEnvironment(ctx context.Context) *dagger.Container {
-	base := m.CreateBaseContainer()
-	withPoetry := m.InstallPoetry(base)
-	return m.InstallProject(withPoetry)
+func (m *Alldarklager) Debug(ctx context.Context, source *dagger.Directory) *dagger.Container {
+	container := m.InstallProject(m.InstallPoetry(m.CreateBaseContainer()))
+	return container.
+		WithDirectory("/src", source).
+		WithWorkdir("/src").
+		Terminal()
 }
