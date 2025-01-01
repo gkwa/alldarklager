@@ -1,6 +1,6 @@
 # TOML Formatter Dagger Module
 
-A Dagger module that provides TOML file formatting capabilities using the [toml-formatter](https://github.com/paulovcmedeiros/toml-formatter) tool.
+A Dagger module that provides TOML file formatting capabilities using the [toml-formatter](https://github.com/paulovcmedeiros/toml-formatter?tab=readme-ov-file#toml-formatter) tool.
 
 ## Features
 
