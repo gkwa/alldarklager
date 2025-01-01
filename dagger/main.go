@@ -9,7 +9,7 @@ import (
 type Alldarklager struct{}
 
 func (m *Alldarklager) CreateBaseContainer() *dagger.Container {
-	return dag.Container().From("python:3.12")
+	return dag.Container().From("python:3.12-slim-bookworm")
 }
 
 func (m *Alldarklager) InstallPoetry(base *dagger.Container) *dagger.Container {
@@ -29,23 +29,20 @@ func (m *Alldarklager) InstallProject(container *dagger.Container) *dagger.Conta
 		})
 }
 
-func (m *Alldarklager) RunTomlFormatter(ctx context.Context, source *dagger.Directory, args []string) error {
+func (m *Alldarklager) RunTomlFormatter(ctx context.Context, source *dagger.Directory, args []string) (*dagger.Directory, error) {
 	container := m.InstallProject(m.InstallPoetry(m.CreateBaseContainer()))
 
 	containerWithSource := container.WithDirectory("/src", source)
 
 	cmd := append([]string{"toml-formatter"}, args...)
 
-	output := containerWithSource.
+	return containerWithSource.
 		WithWorkdir("/src").
 		WithExec(cmd).
-		Directory("/src")
-
-	_, err := output.Export(ctx, ".")
-	return err
+		Directory("/src"), nil
 }
 
-func (m *Alldarklager) Check(ctx context.Context, source *dagger.Directory, filename string) error {
+func (m *Alldarklager) Check(ctx context.Context, source *dagger.Directory, filename string) (*dagger.Directory, error) {
 	return m.RunTomlFormatter(ctx, source, []string{"check", "--fix-inplace", filename})
 }
 
